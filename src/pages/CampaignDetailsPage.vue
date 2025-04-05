@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
+import type { Battle } from '@/types/battle'
 
 const route = useRoute()
 const showNewBattleDialog = ref(false)
 
-const newBattle = ref({
+const newBattle = ref<Omit<Battle, 'id'>>({
   name: '',
-  type: '',
+  type: 'attack',
   location: '',
   date: '',
   description: '',
-  result: '',
+  result: 'pre-battle',
   warchestChange: 0
 })
 
@@ -50,8 +51,28 @@ const handleCreateBattle = () => {
           <p class="mt-1 text-lg">Sample Unit</p>
         </div>
         <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Planet</h3>
+          <p class="mt-1 text-lg">Sample Planet</p>
+        </div>
+        <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
           <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Contract Type</h3>
           <p class="mt-1 text-lg">Attack</p>
+        </div>
+        <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Contract Length</h3>
+          <p class="mt-1 text-lg">12 months</p>
+        </div>
+        <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Base Pay</h3>
+          <p class="mt-1 text-lg">100%</p>
+        </div>
+        <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Support</h3>
+          <p class="mt-1 text-lg">100%</p>
+        </div>
+        <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Salvage</h3>
+          <p class="mt-1 text-lg">100%</p>
         </div>
         <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
           <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Warchest</h3>

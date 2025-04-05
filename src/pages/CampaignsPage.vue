@@ -1,23 +1,26 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import type { Campaign } from '@/types/campaign'
+import CampaignCard from '@/components/CampaignCard.vue'
 
 const router = useRouter()
 const showCreateDialog = ref(false)
 
-const newCampaign = ref({
+const newCampaign = ref<Omit<Campaign, 'id' | 'battleIds' | 'createdAt' | 'updatedAt'>>({
   name: '',
   description: '',
   employer: '',
   unit: '',
-  contractType: '',
+  planet: '',
+  contractType: 'attack',
   scale: 1,
   length: 12,
   basePay: 100,
   transportation: 100,
   support: 100,
   salvage: 100,
-  commandType: '',
+  commandType: 'attached',
   warchest: 0
 })
 
@@ -42,21 +45,15 @@ const handleCreate = () => {
 
     <!-- Campaign List -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div
+      <CampaignCard
         v-for="i in 3"
         :key="i"
-        class="card hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+        :name="`Campaign ${i}`"
+        description="A sample campaign description that would be replaced with actual campaign data."
+        employer="Sample Employer"
+        unit="Sample Unit"
         @click="router.push(`/campaigns/${i}`)"
-      >
-        <h3 class="text-xl font-semibold mb-2">Campaign {{ i }}</h3>
-        <p class="text-gray-600 dark:text-gray-300 mb-4">
-          A sample campaign description that would be replaced with actual campaign data.
-        </p>
-        <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400">
-          <span>Employer: Sample Employer</span>
-          <span>Unit: Sample Unit</span>
-        </div>
-      </div>
+      />
     </div>
 
     <!-- Create Campaign Dialog -->
@@ -106,6 +103,16 @@ const handleCreate = () => {
                 required
               />
             </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">Planet</label>
+            <input
+              v-model="newCampaign.planet"
+              type="text"
+              class="input"
+              required
+            />
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
