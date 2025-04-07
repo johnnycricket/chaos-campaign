@@ -5,14 +5,20 @@ export interface Campaign {
   employer: string;
   unit: string;
   planet: string;
-  contractType: "attack" | "defend" | "recon" | "pursuit" | "breakthrough";
-  scale: 1 | 2 | 3 | 4;
+  contractType:
+    | "Raid"
+    | "Expedition"
+    | "Pirate Hunt"
+    | "Garrison"
+    | "Invasion"
+    | "Retainer";
+  scale: 1 | 2 | 3;
   length: number;
   basePay: number;
   transportation: number;
   support: number;
   salvage: number;
-  commandType: "independent" | "attached";
+  commandType: "independent" | "liason";
   warchest: number;
   battleIds: string[];
   createdAt: string;
