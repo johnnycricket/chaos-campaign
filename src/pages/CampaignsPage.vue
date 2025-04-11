@@ -4,8 +4,10 @@ import { useRouter } from 'vue-router'
 import type { Campaign } from '@/types/campaign'
 import CampaignCard from '@/components/CampaignCard.vue'
 import CampaignForm from '@/components/CampaignForm.vue'
+import { useCampaignsStore } from '@/stores/campaigns'
 
 const router = useRouter()
+const campaignsStore = useCampaignsStore()
 const showCreateDialog = ref(false)
 
 const newCampaign = ref<Omit<Campaign, 'id' | 'battleIds' | 'createdAt' | 'updatedAt'>>({
@@ -14,21 +16,21 @@ const newCampaign = ref<Omit<Campaign, 'id' | 'battleIds' | 'createdAt' | 'updat
   employer: '',
   unit: '',
   planet: '',
-  contractType: 'attack',
+  contractType: 'Raid',
   scale: 1,
   length: 12,
   basePay: 100,
   transportation: 100,
   support: 100,
   salvage: 100,
-  commandType: 'attached',
+  commandType: 'independent',
   warchest: 0
 })
 
 const handleCreate = () => {
-  // TODO: Implement campaign creation
+  const campaign = campaignsStore.createCampaign(newCampaign.value)
   showCreateDialog.value = false
-  router.push('/campaigns/new-campaign-id')
+  router.push(`/campaigns/${campaign.id}`)
 }
 </script>
 
@@ -47,20 +49,20 @@ const handleCreate = () => {
     <!-- Campaign List -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <CampaignCard
-        v-for="i in 3"
-        :key="i"
-        :name="`Campaign ${i}`"
-        description="A sample campaign description that would be replaced with actual campaign data."
-        employer="Sample Employer"
-        unit="Sample Unit"
-        @click="router.push(`/campaigns/${i}`)"
+        v-for="campaign in campaignsStore.campaigns"
+        :key="campaign.id"
+        :name="campaign.name"
+        :description="campaign.description"
+        :employer="campaign.employer"
+        :unit="campaign.unit"
+        @click="router.push(`/campaigns/${campaign.id}`)"
       />
     </div>
 
     <!-- Create Campaign Dialog -->
     <div
       v-if="showCreateDialog"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center p-4"
     >
       <CampaignForm
         v-model="newCampaign"

@@ -1,38 +1,72 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import UnitForm from '@/components/UnitForm.vue'
+import UnitCard from '@/components/UnitCard.vue'
+import ForceForm from '@/components/ForceForm.vue'
+import { useUnitsStore } from '@/stores/units'
+import { type UnitInput } from '@/types/unit'
+import { type ForceInput, createForce } from '@/types/force'
 
 const router = useRouter()
+const unitsStore = useUnitsStore()
 const showCreateDialog = ref(false)
 const showEditDialog = ref(false)
+const showForceDialog = ref(false)
 const selectedUnit = ref<{ id: string; name: string; warchest: number; scale: number } | null>(null)
+const selectedForce = ref<any | null>(null)
+const isEditingForce = ref(false)
 
-const newUnit = ref({
+const newUnit = ref<UnitInput>({
   name: '',
   warchest: 0,
-  scale: 1
+  scale: 1,
+  forces: []
 })
 
-const editUnit = ref({
+const editUnit = ref<UnitInput>({
   name: '',
   warchest: 0,
-  scale: 1
+  scale: 1,
+  forces: []
+})
+
+const newForce = ref<ForceInput>({
+  name: '',
+  type: 'mech',
+  pointValue: 0,
+  isSupport: false,
+  supportCost: 0,
+  currentArmor: 0,
+  maxArmor: 0,
+  currentStructure: 0,
+  maxStructure: 0,
+  pilotSkill: 4,
+  repairCost: 0
 })
 
 const handleCreate = () => {
-  // TODO: Implement unit creation
+  unitsStore.addUnit(newUnit.value)
+  newUnit.value = {
+    name: '',
+    warchest: 0,
+    scale: 1,
+    forces: []
+  }
   showCreateDialog.value = false
 }
 
 const handleEdit = () => {
-  // TODO: Implement unit editing
+  if (selectedUnit.value) {
+    unitsStore.updateUnit(selectedUnit.value.id, editUnit.value)
+  }
   showEditDialog.value = false
   selectedUnit.value = null
 }
 
 const handleDelete = (unit: { id: string; name: string }) => {
   if (!confirm(`Are you sure you want to delete ${unit.name}?`)) return
-  // TODO: Implement unit deletion
+  unitsStore.deleteUnit(unit.id)
 }
 
 const openEditDialog = (unit: { id: string; name: string; warchest: number; scale: number }) => {
@@ -40,9 +74,78 @@ const openEditDialog = (unit: { id: string; name: string; warchest: number; scal
   editUnit.value = {
     name: unit.name,
     warchest: unit.warchest,
-    scale: unit.scale
+    scale: unit.scale as 1 | 2 | 3 | 4,
+    forces: unitsStore.getUnit(unit.id)?.forces || []
   }
   showEditDialog.value = true
+}
+
+const handleAddForce = (unitId: string) => {
+  selectedUnit.value = unitsStore.getUnit(unitId) || null
+  isEditingForce.value = false
+  newForce.value = {
+    name: '',
+    type: 'mech',
+    pointValue: 0,
+    isSupport: false,
+    supportCost: 0,
+    currentArmor: 0,
+    maxArmor: 0,
+    currentStructure: 0,
+    maxStructure: 0,
+    pilotSkill: 4,
+    repairCost: 0
+  }
+  showForceDialog.value = true
+}
+
+const handleEditForce = (unitId: string, force: any) => {
+  selectedUnit.value = unitsStore.getUnit(unitId) || null
+  selectedForce.value = force
+  isEditingForce.value = true
+  newForce.value = { ...force }
+  showForceDialog.value = true
+}
+
+const handleDeleteForce = (unitId: string, force: any) => {
+  if (!confirm(`Are you sure you want to delete ${force.name}?`)) return
+  
+  const unit = unitsStore.getUnit(unitId)
+  if (!unit) return
+  
+  const updatedForces = unit.forces.filter(f => f.id !== force.id)
+  unitsStore.updateUnit(unitId, { forces: updatedForces })
+}
+
+const handleForceSubmit = () => {
+  if (!selectedUnit.value) return
+  
+  const unit = unitsStore.getUnit(selectedUnit.value.id)
+  if (!unit) return
+  
+  if (isEditingForce.value && selectedForce.value) {
+    // Update existing force
+    const updatedForces = unit.forces.map(f => 
+      f.id === selectedForce.value.id ? { ...f, ...newForce.value } : f
+    )
+    unitsStore.updateUnit(unit.id, { forces: updatedForces })
+  } else {
+    // Add new force
+    const force = createForce(newForce.value)
+    if (!unit.forces){
+      unitsStore.updateUnit(unit.id, { 
+        forces: [force] 
+      })
+    } else {
+      unitsStore.updateUnit(unit.id, { 
+        forces: [...unit.forces, force] 
+      })
+    }
+  }
+  
+  showForceDialog.value = false
+  selectedUnit.value = null
+  selectedForce.value = null
 }
 </script>
 
@@ -59,173 +162,57 @@ const openEditDialog = (unit: { id: string; name: string; warchest: number; scal
     </div>
 
     <!-- Unit List -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div
-        v-for="i in 3"
-        :key="i"
-        class="card hover:shadow-lg transition-shadow duration-200"
-      >
-        <div class="flex justify-between items-start">
-          <div>
-            <h3 class="text-xl font-semibold mb-2">Unit {{ i }}</h3>
-            <p class="text-gray-600 dark:text-gray-300">
-              A sample unit description that would be replaced with actual unit data.
-            </p>
-          </div>
-          <div class="flex space-x-2">
-            <button
-              class="btn btn-secondary"
-              @click="openEditDialog({ id: String(i), name: `Unit ${i}`, warchest: 1000, scale: 1 })"
-            >
-              Edit
-            </button>
-            <button
-              class="btn btn-secondary"
-              @click="handleDelete({ id: String(i), name: `Unit ${i}` })"
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-        <div class="mt-4 grid grid-cols-2 gap-4">
-          <div>
-            <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">Scale</h4>
-            <p class="mt-1">1</p>
-          </div>
-          <div>
-            <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">Warchest</h4>
-            <p class="mt-1">1000</p>
-          </div>
-        </div>
-      </div>
+    <div class="grid grid-cols-1 gap-6">
+      <UnitCard
+        v-for="unit in unitsStore.units"
+        :key="unit.id"
+        :unit="unit"
+        @edit="openEditDialog"
+        @delete="handleDelete"
+        @add-force="handleAddForce"
+        @edit-force="handleEditForce"
+        @delete-force="handleDeleteForce"
+      />
     </div>
 
     <!-- Create Unit Dialog -->
     <div
       v-if="showCreateDialog"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center p-4"
     >
-      <div class="card max-w-lg w-full">
-        <h2 class="text-2xl font-semibold mb-6">New Unit</h2>
-        <form @submit.prevent="handleCreate" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium mb-1">Unit Name</label>
-            <input
-              v-model="newUnit.name"
-              type="text"
-              class="input"
-              required
-            />
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium mb-1">Scale</label>
-              <select
-                v-model="newUnit.scale"
-                class="input"
-                required
-              >
-                <option :value="1">1</option>
-                <option :value="2">2</option>
-                <option :value="3">3</option>
-                <option :value="4">4</option>
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium mb-1">Warchest</label>
-              <input
-                v-model="newUnit.warchest"
-                type="number"
-                class="input"
-                required
-                min="0"
-              />
-            </div>
-          </div>
-
-          <div class="flex justify-end space-x-4 mt-6">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              @click="showCreateDialog = false"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              class="btn btn-primary"
-            >
-              Create Unit
-            </button>
-          </div>
-        </form>
-      </div>
+      <UnitForm
+        v-model="newUnit"
+        @submit="handleCreate"
+        @cancel="showCreateDialog = false"
+      />
     </div>
 
     <!-- Edit Unit Dialog -->
     <div
       v-if="showEditDialog"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center p-4"
     >
-      <div class="card max-w-lg w-full">
-        <h2 class="text-2xl font-semibold mb-6">Edit Unit</h2>
-        <form @submit.prevent="handleEdit" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium mb-1">Unit Name</label>
-            <input
-              v-model="editUnit.name"
-              type="text"
-              class="input"
-              required
-            />
-          </div>
+      <UnitForm
+        v-model="editUnit"
+        title="Edit Unit"
+        submit-button-text="Save Changes"
+        @submit="handleEdit"
+        @cancel="showEditDialog = false"
+      />
+    </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium mb-1">Scale</label>
-              <select
-                v-model="editUnit.scale"
-                class="input"
-                required
-              >
-                <option :value="1">1</option>
-                <option :value="2">2</option>
-                <option :value="3">3</option>
-                <option :value="4">4</option>
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium mb-1">Warchest</label>
-              <input
-                v-model="editUnit.warchest"
-                type="number"
-                class="input"
-                required
-                min="0"
-              />
-            </div>
-          </div>
-
-          <div class="flex justify-end space-x-4 mt-6">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              @click="showEditDialog = false"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              class="btn btn-primary"
-            >
-              Save Changes
-            </button>
-          </div>
-        </form>
-      </div>
+    <!-- Force Dialog -->
+    <div
+      v-if="showForceDialog"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center p-4"
+    >
+      <ForceForm
+        v-model="newForce"
+        :title="isEditingForce ? 'Edit Force' : 'New Force'"
+        :submit-button-text="isEditingForce ? 'Save Changes' : 'Create Force'"
+        @submit="handleForceSubmit"
+        @cancel="showForceDialog = false"
+      />
     </div>
   </div>
 </template> 
