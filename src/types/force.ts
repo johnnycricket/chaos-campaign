@@ -1,4 +1,5 @@
 export type ForceType = "mech" | "tank" | "infantry";
+export type ForceStatus = "operational" | "damaged" | "destroyed" | "repairing";
 
 export type Force = {
   id: string;
@@ -13,6 +14,8 @@ export type Force = {
   maxStructure: number;
   pilotSkill: number;
   repairCost: number;
+  status: ForceStatus;
+  tonnage: number;
 };
 
 export interface ForceInput {
@@ -27,6 +30,8 @@ export interface ForceInput {
   maxStructure: number;
   pilotSkill: number;
   repairCost: number;
+  status: ForceStatus;
+  tonnage: number;
 }
 
 export interface ForceUpdate {
@@ -41,6 +46,8 @@ export interface ForceUpdate {
   maxStructure?: number;
   pilotSkill?: number;
   repairCost?: number;
+  status?: ForceStatus;
+  tonnage?: number;
 }
 
 export const validateForceInput = (
@@ -109,6 +116,17 @@ export const validateForceInput = (
     return false;
   }
 
+  if (
+    !input.status ||
+    !["operational", "damaged", "destroyed", "repairing"].includes(input.status)
+  ) {
+    return false;
+  }
+
+  if (typeof input.tonnage !== "number" || input.tonnage < 0) {
+    return false;
+  }
+
   return true;
 };
 
@@ -130,6 +148,8 @@ export const createForce = (input: ForceInput): Force => {
     maxStructure: Math.floor(input.maxStructure),
     pilotSkill: Math.floor(input.pilotSkill),
     repairCost: Math.floor(input.repairCost),
+    status: input.status,
+    tonnage: Math.floor(input.tonnage),
   };
 };
 
@@ -226,6 +246,24 @@ export const updateForce = (force: Force, updates: ForceUpdate): Force => {
       throw new Error("Invalid repair cost");
     }
     updatedForce.repairCost = Math.floor(updates.repairCost);
+  }
+
+  if (updates.status !== undefined) {
+    if (
+      !["operational", "damaged", "destroyed", "repairing"].includes(
+        updates.status
+      )
+    ) {
+      throw new Error("Invalid force status");
+    }
+    updatedForce.status = updates.status;
+  }
+
+  if (updates.tonnage !== undefined) {
+    if (typeof updates.tonnage !== "number" || updates.tonnage < 0) {
+      throw new Error("Invalid tonnage");
+    }
+    updatedForce.tonnage = Math.floor(updates.tonnage);
   }
 
   return updatedForce;
