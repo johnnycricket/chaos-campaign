@@ -30,15 +30,15 @@ const router = useRouter()
       </div>
 
       <div class="card hover:shadow-lg transition-shadow duration-200">
-        <h2 class="text-2xl font-semibold mb-4">Units</h2>
+        <h2 class="text-2xl font-semibold mb-4">Forces</h2>
         <p class="text-gray-600 dark:text-gray-300 mb-6">
-          Manage your mercenary units. Track their composition, equipment, and battle history.
+          Manage your mercenary forces. Track their composition, equipment, and battle history.
         </p>
         <button
           class="btn btn-primary"
-          @click="router.push('/units')"
+          @click="router.push('/forces')"
         >
-          View Units
+          View Forces
         </button>
       </div>
     </div>
