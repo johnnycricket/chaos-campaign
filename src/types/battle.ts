@@ -1,6 +1,5 @@
 export interface Battle {
   id: string;
-  campaignId: string;
   name: string;
   type:
     | "assault"

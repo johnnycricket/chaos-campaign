@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { type ForceInput, FORCE_SCALES } from '@/types/force';
+import { type ForceInput, type ForceType } from '@/types/force';
 
 interface Props {
   modelValue: Partial<ForceInput>;
@@ -21,11 +21,22 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>();
 
+const forceTypes: ForceType[] = ['mech', 'tank', 'infantry'];
+
 const formData = ref<Partial<ForceInput>>({
   name: '',
-  warchest: 0,
-  scale: 1,
-  units: [],
+  type: 'mech',
+  pointValue: 0,
+  isSupport: false,
+  supportCost: 0,
+  currentArmor: 0,
+  maxArmor: 0,
+  currentStructure: 0,
+  maxStructure: 0,
+  pilotSkill: 4,
+  repairCost: 0,
+  status: 'operational',
+  tonnage: 0,
   ...props.modelValue,
 });
 
@@ -58,12 +69,28 @@ const validateFormData = (data: Partial<ForceInput>): data is ForceInput => {
   return (
     typeof data.name === 'string' &&
     data.name.trim().length > 0 &&
-    typeof data.warchest === 'number' &&
-    data.warchest >= 0 &&
-    typeof data.scale === 'number' &&
-    data.scale >= 1 &&
-    data.scale <= 4 &&
-    Array.isArray(data.units)
+    ['mech', 'tank', 'infantry'].includes(data.type as string) &&
+    typeof data.pointValue === 'number' &&
+    data.pointValue >= 0 &&
+    typeof data.isSupport === 'boolean' &&
+    typeof data.supportCost === 'number' &&
+    data.supportCost >= 0 &&
+    typeof data.currentArmor === 'number' &&
+    data.currentArmor >= 0 &&
+    typeof data.maxArmor === 'number' &&
+    data.maxArmor >= 0 &&
+    typeof data.currentStructure === 'number' &&
+    data.currentStructure >= 0 &&
+    typeof data.maxStructure === 'number' &&
+    data.maxStructure >= 0 &&
+    typeof data.pilotSkill === 'number' &&
+    data.pilotSkill >= 0 &&
+    data.pilotSkill <= 6 &&
+    typeof data.repairCost === 'number' &&
+    data.repairCost >= 0 &&
+    ['operational', 'damaged', 'destroyed', 'repairing'].includes(data.status as string) &&
+    typeof data.tonnage === 'number' &&
+    data.tonnage >= 0
   );
 };
 </script>
@@ -86,10 +113,46 @@ const validateFormData = (data: Partial<ForceInput>): data is ForceInput => {
         </div>
 
         <div>
-          <label for="warchest" class="block text-sm font-medium text-gray-700">Warchest</label>
+          <label for="type" class="block text-sm font-medium text-gray-700">Type</label>
+          <select
+            id="type"
+            v-model="formData.type"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          >
+            <option
+              v-for="type in forceTypes"
+              :key="type"
+              :value="type"
+            >
+              {{ type.charAt(0).toUpperCase() + type.slice(1) }}
+            </option>
+          </select>
+        </div>
+
+        <div>
+          <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+          <select
+            id="status"
+            v-model="formData.status"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          >
+            <option value="operational">Operational</option>
+            <option value="damaged">Damaged</option>
+            <option value="destroyed">Destroyed</option>
+            <option value="repairing">Repairing</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Combat Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div>
+          <label for="tonnage" class="block text-sm font-medium text-gray-700">Tonnage</label>
           <input
-            id="warchest"
-            v-model.number="formData.warchest"
+            id="tonnage"
+            v-model.number="formData.tonnage"
             type="number"
             min="0"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -98,21 +161,116 @@ const validateFormData = (data: Partial<ForceInput>): data is ForceInput => {
         </div>
 
         <div>
-          <label for="scale" class="block text-sm font-medium text-gray-700">Scale</label>
-          <select
-            id="scale"
-            v-model.number="formData.scale"
+          <label for="pointValue" class="block text-sm font-medium text-gray-700">Point Value</label>
+          <input
+            id="pointValue"
+            v-model.number="formData.pointValue"
+            type="number"
+            min="0"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
-          >
-            <option
-              v-for="scale in FORCE_SCALES"
-              :key="scale"
-              :value="scale"
-            >
-              {{ scale }}
-            </option>
-          </select>
+          />
+        </div>
+
+        <div>
+          <label for="pilotSkill" class="block text-sm font-medium text-gray-700">Pilot Skill</label>
+          <input
+            id="pilotSkill"
+            v-model.number="formData.pilotSkill"
+            type="number"
+            min="0"
+            max="6"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+
+        <div>
+          <label for="repairCost" class="block text-sm font-medium text-gray-700">Repair Cost</label>
+          <input
+            id="repairCost"
+            v-model.number="formData.repairCost"
+            type="number"
+            min="0"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- Armor and Structure -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div>
+          <label for="currentArmor" class="block text-sm font-medium text-gray-700">Current Armor</label>
+          <input
+            id="currentArmor"
+            v-model.number="formData.currentArmor"
+            type="number"
+            min="0"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+
+        <div>
+          <label for="maxArmor" class="block text-sm font-medium text-gray-700">Max Armor</label>
+          <input
+            id="maxArmor"
+            v-model.number="formData.maxArmor"
+            type="number"
+            min="0"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+
+        <div>
+          <label for="currentStructure" class="block text-sm font-medium text-gray-700">Current Structure</label>
+          <input
+            id="currentStructure"
+            v-model.number="formData.currentStructure"
+            type="number"
+            min="0"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+
+        <div>
+          <label for="maxStructure" class="block text-sm font-medium text-gray-700">Max Structure</label>
+          <input
+            id="maxStructure"
+            v-model.number="formData.maxStructure"
+            type="number"
+            min="0"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- Support Options -->
+      <div class="space-y-4">
+        <div class="flex items-center">
+          <input
+            id="isSupport"
+            v-model="formData.isSupport"
+            type="checkbox"
+            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          />
+          <label for="isSupport" class="ml-2 block text-sm text-gray-700">Is Support Unit</label>
+        </div>
+
+        <div v-if="formData.isSupport">
+          <label for="supportCost" class="block text-sm font-medium text-gray-700">Support Cost</label>
+          <input
+            id="supportCost"
+            v-model.number="formData.supportCost"
+            type="number"
+            min="0"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
         </div>
       </div>
 
