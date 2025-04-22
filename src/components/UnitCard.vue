@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type Unit } from '@/types/unit'
+import { type Unit } from '@/types/force'
 import ForceTable from '@/components/ForceTable.vue'
 
 interface Props {

@@ -6,7 +6,7 @@ import {
   type UnitUpdate,
   createUnit,
   updateUnit,
-} from "@/types/unit";
+} from "@/types/force";
 
 const STORAGE_KEY = "chaos-campaign-units";
 

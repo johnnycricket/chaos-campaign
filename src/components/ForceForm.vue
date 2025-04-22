@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { type ForceInput, type ForceType } from '@/types/force';
+import { type ForceInput, type ForceType } from '@/types/unit';
 
 interface Props {
   modelValue: Partial<ForceInput>;

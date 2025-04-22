@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type UnitInput, UNIT_SCALES } from '@/types/unit'
+import { type UnitInput, UNIT_SCALES } from '@/types/force'
 
 interface Props {
   modelValue: UnitInput

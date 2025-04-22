@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type Force } from '@/types/force'
+import { type Force } from '@/types/unit'
 
 interface Props {
   forces: Force[]

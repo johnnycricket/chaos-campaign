@@ -5,8 +5,8 @@ import UnitForm from '@/components/UnitForm.vue'
 import UnitCard from '@/components/UnitCard.vue'
 import ForceForm from '@/components/ForceForm.vue'
 import { useUnitsStore } from '@/stores/units'
-import { type UnitInput } from '@/types/unit'
-import { type ForceInput, createForce } from '@/types/force'
+import { type UnitInput } from '@/types/force'
+import { type ForceInput, createForce } from '@/types/unit'
 
 const router = useRouter()
 const unitsStore = useUnitsStore()
