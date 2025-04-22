@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
 import type { Unit } from "@/types/unit";
 import UnitRepairInfo from '@/components/UnitRepairInfo.vue';
 
-const router = useRouter();
 const selectedUnit = ref<Unit | null>(null);
 const showRepairDialog = ref(false);
 
@@ -16,6 +14,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "edit", unit: Unit): void;
   (e: "delete", unit: Unit): void;
+  (e: "repair", unit: Unit): void;
 }>();
 
 const handleUnitClick = (unit: Unit) => {

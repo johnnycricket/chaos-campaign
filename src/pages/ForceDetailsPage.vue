@@ -1,22 +1,37 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useForcesStore } from '@/stores/forces'
+import { type Force } from '@/types/force'
+import { type Unit } from '@/types/unit'
 import UnitTable from '@/components/UnitTable.vue'
-import type { Unit } from '@/types/unit'
+import UnitForm from '@/components/UnitForm.vue'
 
 const route = useRoute()
 const router = useRouter()
 const forcesStore = useForcesStore()
 
-const forceId = ref(() => route.params.forceId as string)
-const force = computed(() => forcesStore.getForce(forceId.value))
+const force = ref<Force | null>(null)
+const isEditing = ref(false)
+const isAddingUnit = ref(false)
+const editingUnit = ref<Unit | null>(null)
+const isRepairing = ref(false)
+onMounted(async () => {
+  const forceId = route.params.id as string
+  const foundForce = forcesStore.getForce(forceId)
+  if (foundForce) {
+    force.value = foundForce
+  } else {
+    router.push('/forces')
+  }
+})
 
-// Redirect if force not found
-if (!force.value) {
-  console.log('Force ID:', forceId.value)
-  console.log('Force not found')
-  router.push('/forces')
+const handleEdit = () => {
+  isEditing.value = true
+}
+
+const handleRepair = () => {
+  isRepairing.value = true
 }
 
 const handleDelete = async () => {
@@ -26,80 +41,116 @@ const handleDelete = async () => {
   }
 }
 
-const handleEditUnit = (unit: Unit) => {
-  router.push(`/forces/${forceId.value}/units/${unit.id}/edit`)
+const handleAddUnit = () => {
+  editingUnit.value = null
+  isAddingUnit.value = true
 }
 
-const handleDeleteUnit = (unit: Unit) => {
-  if (confirm(`Are you sure you want to delete ${unit.name}?`)) {
-    forcesStore.removeUnitFromForce(forceId.value, unit.id)
+const handleEditUnit = (unit: Unit) => {
+  editingUnit.value = unit
+  isAddingUnit.value = true
+}
+
+const handleDeleteUnit = async (unit: Unit) => {
+  if (force.value && confirm('Are you sure you want to delete this unit?')) {
+    await forcesStore.removeUnitFromForce(force.value.id, unit.id)
+    force.value = await forcesStore.getForce(force.value.id)
   }
+}
+
+const handleSaveUnit = async (unitData: Partial<Unit>) => {
+  if (!force.value) return
+
+  if (editingUnit.value) {
+    await forcesStore.updateUnit(editingUnit.value.id, unitData)
+  } else {
+    await forcesStore.addUnitToForce(force.value.id, unitData)
+  }
+
+  force.value = await forcesStore.getForce(force.value.id)
+  isAddingUnit.value = false
+  editingUnit.value = null
 }
 </script>
 
 <template>
-  <div v-if="force" class="space-y-8">
-    <!-- Force Header -->
-    <div class="bg-white rounded-lg shadow-lg p-6">
-      <div class="flex justify-between items-start">
-        <div>
-          <h1 class="text-3xl font-bold mb-2">{{ force.name }}</h1>
-        </div>
+  <div class="container mx-auto px-4 py-8">
+    <div v-if="force" class="space-y-6">
+      <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold text-gray-900">{{ force.name }}</h1>
         <div class="flex space-x-4">
           <button
-            class="btn btn-primary"
-            @click="router.push(`/forces/${force.id}/edit`)"
+            class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+            @click="handleEdit"
           >
             Edit Force
           </button>
           <button
-            class="btn btn-danger"
+            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
             @click="handleDelete"
           >
             Delete Force
           </button>
-          <button
-            class="btn btn-secondary"
-            @click="router.push('/forces')"
-          >
-            Back to Forces
-          </button>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-        <div class="p-4 bg-gray-50 rounded-lg">
-          <h3 class="text-sm font-medium text-gray-500">Warchest</h3>
-          <p class="mt-1 text-lg">{{ force.warchest }}</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-xl font-semibold mb-4">Force Details</h2>
+          <div class="space-y-4">
+            <div>
+              <span class="font-medium">Warchest:</span>
+              <span class="ml-2">{{ force.warchest }}</span>
+            </div>
+            <div>
+              <span class="font-medium">Scale:</span>
+              <span class="ml-2">{{ force.scale }}</span>
+            </div>
+            <div>
+              <span class="font-medium">Total Units:</span>
+              <span class="ml-2">{{ force.units.length }}</span>
+            </div>
+          </div>
         </div>
-        <div class="p-4 bg-gray-50 rounded-lg">
-          <h3 class="text-sm font-medium text-gray-500">Scale</h3>
-          <p class="mt-1 text-lg">{{ force.scale }}</p>
-        </div>
-        <div class="p-4 bg-gray-50 rounded-lg">
-          <h3 class="text-sm font-medium text-gray-500">Total Units</h3>
-          <p class="mt-1 text-lg">{{ force.units.length }}</p>
+
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold">Units</h2>
+            <button
+              class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+              @click="handleAddUnit"
+            >
+              Add Unit
+            </button>
+          </div>
+          <UnitTable
+            :units="force.units"
+            :force-id="force.id"
+            @edit="handleEditUnit"
+            @delete="handleDeleteUnit"
+            @repair="handleRepair"
+          />
         </div>
       </div>
     </div>
 
-    <!-- Units Table -->
-    <div class="bg-white rounded-lg shadow-lg p-6">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-semibold">Units</h2>
-        <button
-          class="btn btn-primary"
-          @click="router.push(`/forces/${force.id}/units/new`)"
-        >
-          Add Unit
-        </button>
-      </div>
-      <UnitTable 
-        :units="force.units"
-        :force-id="force.id"
-        @edit="handleEditUnit"
-        @delete="handleDeleteUnit"
-      />
+    <div v-else class="text-center py-12">
+      <p class="text-gray-500">Loading force details...</p>
     </div>
+
+    <v-dialog v-model="isAddingUnit" max-width="600px">
+      <v-card>
+        <v-card-title>
+          {{ editingUnit ? 'Edit Unit' : 'Add Unit' }}
+        </v-card-title>
+        <v-card-text>
+          <UnitForm
+            :model-value="editingUnit || {}"
+            @save="handleSaveUnit"
+            @cancel="isAddingUnit = false"
+          />
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </div>
 </template> 

@@ -30,7 +30,7 @@ const routes: RouteRecordRaw[] = [
     component: ForcesPage,
   },
   {
-    path: "/forces/:id",
+    path: "/forces/:forceId",
     name: "force-details",
     component: ForceDetailsPage,
   },

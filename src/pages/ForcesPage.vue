@@ -39,7 +39,12 @@ const handleCreate = () => {
 
 const handleEdit = () => {
   if (selectedForce.value) {
-    forcesStore.updateForce(selectedForce.value.id, editForce.value)
+    forcesStore.$patch((state) => {
+      const index = state.forces.findIndex(f => f.id === selectedForce.value?.id)
+      if (index !== -1) {
+        state.forces[index] = { ...state.forces[index], ...editForce.value }
+      }
+    })
   }
   showEditDialog.value = false
   selectedForce.value = null
