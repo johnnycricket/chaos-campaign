@@ -23,7 +23,7 @@ export type Unit = {
   tonnage: number;
 };
 
-export interface ForceInput {
+export interface UnitInput {
   name: string;
   type: UnitType;
   pointValue: number;
