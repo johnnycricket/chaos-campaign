@@ -15,8 +15,8 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  title: 'New Force',
-  submitButtonText: 'Create Force'
+  title: 'New Unit',
+  submitButtonText: 'Create Unit'
 });
 
 const emit = defineEmits<Emits>();
@@ -100,7 +100,7 @@ const validateFormData = (data: Partial<UnitInput>): data is UnitInput => {
       <!-- Basic Information -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div>
-          <label for="name" class="block text-sm font-medium text-gray-700">Force Name</label>
+          <label for="name" class="block text-sm font-medium text-gray-700">Unit Name</label>
           <input
             id="name"
             v-model="formData.name"

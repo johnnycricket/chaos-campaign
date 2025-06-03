@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { type Unit } from '@/types/force'
+import { type Force } from '@/types/force'
 import ForceTable from '@/components/ForceTable.vue'
 
 interface Props {
-  unit: Unit
+  force: Force
 }
 
 interface Emits {
-  (e: 'edit', unit: Unit): void
-  (e: 'delete', unit: { id: string; name: string }): void
-  (e: 'add-force', unitId: string): void
-  (e: 'edit-force', unitId: string, force: any): void
-  (e: 'delete-force', unitId: string, force: any): void
+  (e: 'edit', force: Force): void
+  (e: 'delete', force: Force): void
+  (e: 'add-force', forceId: string): void
+  (e: 'edit-force', forceId: string, force: any): void
+  (e: 'delete-force', forceId: string, force: any): void
 }
 
 defineProps<Props>()
@@ -22,21 +22,21 @@ const emit = defineEmits<Emits>()
   <div class="card hover:shadow-lg transition-shadow duration-200">
     <div class="flex justify-between items-start">
       <div>
-        <h3 class="text-xl font-semibold mb-2">{{ unit.name }}</h3>
+        <h3 class="text-xl font-semibold mb-2">{{ force.name }}</h3>
         <p class="text-gray-600 dark:text-gray-300">
-          A sample unit description that would be replaced with actual unit data.
+          A sample force description that would be replaced with actual force data.
         </p>
       </div>
       <div class="flex space-x-2">
         <button
           class="btn btn-secondary"
-          @click="emit('edit', unit)"
+          @click="emit('edit', force)"
         >
           Edit
         </button>
         <button
           class="btn btn-secondary"
-          @click="emit('delete', { id: unit.id, name: unit.name })"
+          @click="emit('delete', force)"
         >
           Delete
         </button>
@@ -45,11 +45,11 @@ const emit = defineEmits<Emits>()
     <div class="mt-4 grid grid-cols-2 gap-4">
       <div>
         <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">Scale</h4>
-        <p class="mt-1">{{ unit.scale }}</p>
+        <p class="mt-1">{{ force.scale }}</p>
       </div>
       <div>
         <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400">Warchest</h4>
-        <p class="mt-1">{{ unit.warchest }}</p>
+        <p class="mt-1">{{ force.warchest }}</p>
       </div>
     </div>
 
@@ -58,16 +58,16 @@ const emit = defineEmits<Emits>()
         <h4 class="text-lg font-medium">Forces</h4>
         <button
           class="btn btn-primary"
-          @click="emit('add-force', unit.id)"
+          @click="emit('add-force', force.id)"
         >
           Add Force
         </button>
       </div>
       
       <ForceTable
-        :forces="unit.forces"
-        @edit="force => emit('edit-force', unit.id, force)"
-        @delete="force => emit('delete-force', unit.id, force)"
+        :forces="force"
+        @edit="force => emit('edit-force', force.id, force)"
+        @delete="force => emit('delete-force', force.id, force)"
       />
     </div>
   </div>

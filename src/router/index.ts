@@ -4,6 +4,9 @@ import HomePage from "@/pages/HomePage.vue";
 import CampaignsPage from "@/pages/CampaignsPage.vue";
 import CampaignDetailsPage from "@/pages/CampaignDetailsPage.vue";
 import UnitsPage from "@/pages/UnitsPage.vue";
+import UnitsDetailsPage from "@/pages/UnitsDetailsPage.vue";
+import ForcesPage from "@/pages/ForcesPage.vue";
+import ForceDetailsPage from "@/pages/ForceDetailsPage.vue";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -25,6 +28,21 @@ const routes: RouteRecordRaw[] = [
     path: "/units",
     name: "units",
     component: UnitsPage,
+  },
+  {
+    path: "/units/:id",
+    name: "unit-details",
+    component: UnitsDetailsPage,
+  },
+  {
+    path: "/forces",
+    name: "forces",
+    component: ForcesPage,
+  },
+  {
+    path: "/forces/:id",
+    name: "force-details",
+    component: ForceDetailsPage,
   },
 ];
 

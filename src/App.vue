@@ -38,6 +38,16 @@ const route = useRoute()
                 Campaigns
               </router-link>
               <router-link
+                to="/forces"
+                class="inline-flex items-center px-1 pt-1 border-b-2"
+                :class="[
+                  route.name === 'forces'
+                    ? 'border-primary-500 text-gray-900 dark:text-white'
+                    : 'border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                ]"
+              >
+                Forces</router-link>
+              <router-link
                 to="/units"
                 class="inline-flex items-center px-1 pt-1 border-b-2"
                 :class="[

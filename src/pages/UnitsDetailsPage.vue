@@ -2,6 +2,6 @@
 </script>
 <template>
   <div>
-    <h1>Force Table</h1>
+    <h1>Unit Details</h1>
   </div>
 </template>

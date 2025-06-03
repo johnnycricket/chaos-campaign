@@ -30,7 +30,7 @@ const handleSubmit = () => {
     <h2 class="text-2xl font-semibold mb-6 text-gray-800">{{ title }}</h2>
     <form @submit.prevent="handleSubmit" class="space-y-4">
       <div>
-        <label class="block text-sm font-medium mb-1 text-gray-700">Unit Name</label>
+        <label class="block text-sm font-medium mb-1 text-gray-700">Force Name</label>
         <input
           :value="modelValue.name"
           @input="e => emit('update:modelValue', { ...modelValue, name: (e.target as HTMLInputElement).value })"

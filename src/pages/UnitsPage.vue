@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import UnitForm from '@/components/UnitForm.vue'
-import UnitCard from '@/components/UnitCard.vue'
+import UnitTable from '@/components/UnitTable.vue'
 import { useUnitsStore } from '@/stores/units'
 import { type UnitInput, type UnitStatus, type Unit, type UnitType, createUnit } from '@/types/unit'
 
-const router = useRouter()
 const unitsStore = useUnitsStore()
 const showCreateDialog = ref(false)
 const showEditDialog = ref(false)
@@ -136,29 +134,6 @@ const handleDeleteUnit = (unitId: string) => {
   
   unitsStore.updateUnit(unitId, unit)
 }
-
-const handleUnitSubmit = () => {
-  if (!selectedUnit.value) return
-  
-  const unit = unitsStore.getUnit(selectedUnit.value.id)
-  if (!unit) return
-  
-  if (isEditingUnit.value && selectedUnit.value) {
-    // Update existing unit
-    unitsStore.updateUnit(unit.id, unit)
-  } else {
-    // Add new unit
-    const unit = createUnit(newUnit.value)
-    if (!unit.id){
-      unitsStore.updateUnit(unit.id, unit)
-    } else {
-      unitsStore.updateUnit(unit.id, newUnit.value)
-    }
-  }
-  
-  showUnitDialog.value = false
-  selectedUnit.value = null
-}
 </script>
 
 <template>
@@ -175,10 +150,8 @@ const handleUnitSubmit = () => {
 
     <!-- Unit List -->
     <div class="grid grid-cols-1 gap-6">
-      <UnitCard
-        v-for="unit in unitsStore.units"
-        :key="unit.id"
-        :unit="unit"
+      <UnitTable
+        :units="unitsStore.units"
         @edit="openEditDialog"
         @delete="handleDelete"
         @add-unit="handleAddUnit"
@@ -210,20 +183,6 @@ const handleUnitSubmit = () => {
         submit-button-text="Save Changes"
         @submit="handleEdit"
         @cancel="showEditDialog = false"
-      />
-    </div>
-
-    <!-- Force Dialog -->
-    <div
-      v-if="showUnitDialog"
-      class="fixed inset-0 bg-black/50 flex items-center justify-center p-4"
-    >
-      <ForceForm
-        v-model="newUnit"
-        :title="isEditingUnit ? 'Edit Unit' : 'New Unit'"
-        :submit-button-text="isEditingUnit ? 'Save Changes' : 'Create Unit'"
-        @submit="handleUnitSubmit"
-        @cancel="showUnitDialog = false"
       />
     </div>
   </div>
