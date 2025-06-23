@@ -50,9 +50,9 @@ const handleCreate = (formData: UnitInput) => {
   showCreateDialog.value = false
 }
 
-const handleEdit = () => {
+const handleEdit = (formData: UnitInput) => {
   if (selectedUnit.value) {
-    unitsStore.updateUnit(selectedUnit.value.id, editUnit.value)
+    unitsStore.updateUnit(selectedUnit.value.id, formData)
   }
   showEditDialog.value = false
   selectedUnit.value = null
@@ -85,15 +85,15 @@ const openEditDialog = (
     type: unit.type,
     pointValue: unit.pointValue,
     isSupport: false,
-    supportCost: 0,
-    currentArmor: 0,
-    maxArmor: 0,
-    currentStructure: 0,
-    maxStructure: 0,
-    pilotSkill: 4,
-    repairCost: 0,
-    status: 'operational',
-    tonnage: 0
+    supportCost: unit.supportCost,
+    currentArmor: unit.currentArmor,
+    maxArmor: unit.maxArmor,
+    currentStructure: unit.currentStructure,
+    maxStructure: unit.maxStructure,
+    pilotSkill: unit.pilotSkill,
+    repairCost: unit.repairCost,
+    status: unit.status,
+    tonnage: unit.tonnage
   }
   showEditDialog.value = true
 }
