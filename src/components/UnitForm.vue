@@ -110,6 +110,19 @@ const validateFormData = (data: Partial<UnitInput>): data is UnitInput => {
           />
         </div>
         <div>
+          <label for="type" class="block text-sm font-medium text-gray-700">Unit Type</label>
+          <select
+            id="type"
+            v-model="formData.type"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          >
+            <option value="mech">Mech</option>
+            <option value="tank">Tank</option>
+            <option value="infantry">Infantry</option>
+          </select>
+        </div>
+        <div>
           <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
           <select
             id="status"

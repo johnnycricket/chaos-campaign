@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import UnitForm from '@/components/UnitForm.vue'
 import UnitTable from '@/components/UnitTable.vue'
 import { useUnitsStore } from '@/stores/units'
-import { type UnitInput, type UnitStatus, type Unit, type UnitType, createUnit } from '@/types/unit'
+import { type UnitInput, type UnitStatus, type Unit, type UnitType } from '@/types/unit'
 
 const unitsStore = useUnitsStore()
 const showCreateDialog = ref(false)
@@ -44,8 +44,8 @@ const newUnit = ref<UnitInput>({
   tonnage: 0
 })
 
-const handleCreate = () => {
-  unitsStore.addUnit(newUnit.value)
+const handleCreate = (formData: UnitInput) => {
+  unitsStore.addUnit(formData)
   
   showCreateDialog.value = false
 }
