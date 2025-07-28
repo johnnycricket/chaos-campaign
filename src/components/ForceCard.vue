@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { type Force } from '@/types/force'
-import ForceTable from '@/components/ForceTable.vue'
+import UnitTable from '@/components/UnitTable.vue'
+import type { Unit } from '@/types/unit'
 
 interface Props {
   force: Force
@@ -9,8 +10,8 @@ interface Props {
 interface Emits {
   (e: 'edit', force: Force): void
   (e: 'delete', force: Force): void
-  (e: 'add-force', forceId: string): void
-  (e: 'edit-force', forceId: string, force: any): void
+  (e: 'add-units', forceId: string): void
+  (e: 'edit-units', forceId: string, units: Unit[]): void
   (e: 'delete-force', forceId: string, force: any): void
 }
 
@@ -55,19 +56,24 @@ const emit = defineEmits<Emits>()
 
     <div class="mt-6">
       <div class="flex justify-between items-center mb-4">
-        <h4 class="text-lg font-medium">Forces</h4>
+        <h4 class="text-lg font-medium">Units</h4>
         <button
           class="btn btn-primary"
-          @click="emit('add-force', force.id)"
+          @click="emit('add-units', force.id)"
         >
-          Add Force
+          Add Units
+        </button>
+        <button
+          class="btn btn-primary"
+          @click="emit('edit-units', force.id, force.units)"
+        >
+          Edit Units
         </button>
       </div>
       
-      <ForceTable
-        :forces="force"
-        @edit="force => emit('edit-force', force.id, force)"
-        @delete="force => emit('delete-force', force.id, force)"
+      <UnitTable
+        :units="force.units"
+        @edit="emit('edit-units', force.id, force.units)"
       />
     </div>
   </div>

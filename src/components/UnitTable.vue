@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { type Unit } from '@/types/unit'
+import { ref } from 'vue';
 
 interface Props {
   units: Unit[]
@@ -10,7 +11,9 @@ interface Emits {
   (e: 'delete', unit: Unit): void
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+
+const units = ref<Unit[]>(props.units || [])
 const emit = defineEmits<Emits>()
 </script>
 

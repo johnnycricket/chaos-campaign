@@ -8,21 +8,21 @@ export interface Force {
   name: string;
   warchest: number;
   scale: ForceScale;
-  forces: Force[];
+  units: Unit[];
 }
 
 export interface ForceInput {
   name: string;
   warchest: number;
   scale: ForceScale;
-  forces: Force[];
+  units: Unit[];
 }
 
 export interface ForceUpdate {
   name?: string;
   warchest?: number;
   scale?: ForceScale;
-  forces?: Force[];
+  units?: Unit[];
 }
 
 export const validateForceInput = (
@@ -44,7 +44,7 @@ export const validateForceInput = (
     return false;
   }
 
-  if (!Array.isArray(input.forces)) {
+  if (!Array.isArray(input.units)) {
     return false;
   }
 
@@ -61,7 +61,7 @@ export const createForce = (input: ForceInput): Force => {
     name: input.name.trim(),
     warchest: Math.floor(input.warchest),
     scale: input.scale,
-    forces: input.forces || [],
+    units: input.units || [],
   };
 };
 
@@ -89,11 +89,11 @@ export const updateForce = (force: Force, updates: ForceUpdate): Force => {
     updatedForce.scale = updates.scale;
   }
 
-  if (updates.forces !== undefined) {
-    if (!Array.isArray(updates.forces)) {
-      throw new Error("Invalid forces array");
+  if (updates.units !== undefined) {
+    if (!Array.isArray(updates.units)) {
+      throw new Error("Invalid units array");
     }
-    updatedForce.forces = updates.forces;
+    updatedForce.units = updates.units;
   }
 
   return updatedForce;

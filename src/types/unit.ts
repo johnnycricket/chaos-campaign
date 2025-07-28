@@ -21,6 +21,7 @@ export type Unit = {
   repairCost: number;
   status: UnitStatus;
   tonnage: number;
+  forceId?: string;
 };
 
 export interface UnitInput {
@@ -37,6 +38,7 @@ export interface UnitInput {
   repairCost: number;
   status: UnitStatus;
   tonnage: number;
+  forceId?: string;
 }
 
 export interface UnitUpdate {
@@ -53,6 +55,7 @@ export interface UnitUpdate {
   repairCost?: number;
   status?: UnitStatus;
   tonnage?: number;
+  forceId?: string;
 }
 
 export const validateUnitInput = (
@@ -155,6 +158,7 @@ export const createUnit = (input: UnitUpdate): Unit => {
     repairCost: Math.floor(input.repairCost ?? 0),
     status: input.status ?? "operational",
     tonnage: Math.floor(input.tonnage ?? 0),
+    forceId: input.forceId ?? "",
   };
 };
 
@@ -269,6 +273,16 @@ export const updateUnit = (unit: Unit, updates: UnitUpdate): Unit => {
       throw new Error("Invalid tonnage");
     }
     updatedUnit.tonnage = Math.floor(updates.tonnage);
+  }
+
+  if (updates.forceId !== undefined) {
+    if (
+      typeof updates.forceId !== "string" ||
+      updates.forceId.trim().length === 0
+    ) {
+      throw new Error("Invalid force ID");
+    }
+    updatedUnit.forceId = updates.forceId;
   }
 
   return updatedUnit;

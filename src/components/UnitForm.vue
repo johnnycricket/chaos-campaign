@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { type UnitInput } from '@/types/unit';
+import { useForcesStore } from '@/stores/forces';
 
 interface Props {
   modelValue: Partial<UnitInput>;
@@ -37,6 +38,9 @@ const formData = ref<Partial<UnitInput>>({
   tonnage: 0,
   ...props.modelValue,
 });
+
+const forcesStore = useForcesStore();
+
 
 watch(
   () => props.modelValue,
@@ -264,6 +268,25 @@ const validateFormData = (data: Partial<UnitInput>): data is UnitInput => {
             required
           />
         </div>
+      </div>
+
+      <!-- Force ID -->
+      <div>
+        <label for="forceId" class="block text-sm font-medium text-gray-700">Add to Existing Force</label>
+        <select
+          id="forceId"
+          v-model="formData.forceId"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Select a force (optional)</option>
+          <option
+            v-for="force in forcesStore.forces"
+            :key="force.id"
+            :value="force.id"
+          >
+            {{ force.name }}
+          </option>
+        </select>
       </div>
 
       <div class="flex justify-end space-x-4 pt-4">

@@ -16,7 +16,7 @@ const editForce = ref<ForceInput>({
   name: '',
   warchest: 0,
   scale: 1,
-  forces: []
+  units: []
 })
 
 onMounted(() => {
@@ -31,7 +31,7 @@ onMounted(() => {
     name: foundForce.name,
     warchest: foundForce.warchest,
     scale: foundForce.scale,
-    forces: foundForce.forces
+    units: foundForce.units
   }
 })
 
@@ -41,7 +41,7 @@ const handleEdit = () => {
     name: editForce.value.name,
     warchest: editForce.value.warchest,
     scale: editForce.value.scale,
-    forces: editForce.value.forces
+    units: editForce.value.units
   }
   forcesStore.updateForce(force.value.id, updates)
   showEditDialog.value = false
