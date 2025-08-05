@@ -1,4 +1,5 @@
 import { type Unit } from "./unit";
+import { type Formation } from "./formation";
 
 export const FORCE_SCALES = [1, 2, 3, 4] as const;
 export type ForceScale = (typeof FORCE_SCALES)[number];
@@ -9,6 +10,7 @@ export interface Force {
   warchest: number;
   scale: ForceScale;
   units: Unit[];
+  formations: Formation[];
 }
 
 export interface ForceInput {
@@ -16,6 +18,7 @@ export interface ForceInput {
   warchest: number;
   scale: ForceScale;
   units: Unit[];
+  formations: Formation[];
 }
 
 export interface ForceUpdate {
@@ -23,6 +26,7 @@ export interface ForceUpdate {
   warchest?: number;
   scale?: ForceScale;
   units?: Unit[];
+  formations?: Formation[];
 }
 
 export const validateForceInput = (
@@ -48,6 +52,10 @@ export const validateForceInput = (
     return false;
   }
 
+  if (!Array.isArray(input.formations)) {
+    return false;
+  }
+
   return true;
 };
 
@@ -62,6 +70,7 @@ export const createForce = (input: ForceInput): Force => {
     warchest: Math.floor(input.warchest),
     scale: input.scale,
     units: input.units || [],
+    formations: input.formations || [],
   };
 };
 
@@ -94,6 +103,13 @@ export const updateForce = (force: Force, updates: ForceUpdate): Force => {
       throw new Error("Invalid units array");
     }
     updatedForce.units = updates.units;
+  }
+
+  if (updates.formations !== undefined) {
+    if (!Array.isArray(updates.formations)) {
+      throw new Error("Invalid formations array");
+    }
+    updatedForce.formations = updates.formations;
   }
 
   return updatedForce;

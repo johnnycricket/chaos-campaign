@@ -72,7 +72,7 @@ const emit = defineEmits<Emits>()
       </div>
       
       <UnitTable
-        :units="force.units"
+        :units="force.units || []"
         @edit="emit('edit-units', force.id, force.units)"
       />
     </div>
